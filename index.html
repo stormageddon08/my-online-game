@@ -3,9 +3,158 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Online Game</title>
+    <meta name="theme-color" content="#101a2a">
+    <title>My Online Games</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #101a2a;
+        color: #f5f7fb;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 15% 0%, rgb(37 81 126 / 35%), transparent 42rem),
+          #101a2a;
+      }
+
+      main {
+        width: min(100% - 2rem, 1080px);
+        margin: 0 auto;
+        padding: clamp(3rem, 9vw, 7rem) 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 0.75rem;
+        color: #72d7c4;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        letter-spacing: -0.06em;
+        line-height: 1;
+      }
+
+      .intro {
+        max-width: 36rem;
+        margin: 1.25rem 0 3rem;
+        color: #aab7c9;
+        font-size: 1.1rem;
+        line-height: 1.7;
+      }
+
+      .games {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+        gap: 1.25rem;
+      }
+
+      .game-card {
+        overflow: hidden;
+        border: 1px solid #293a51;
+        border-radius: 1.25rem;
+        background: #18263a;
+        box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 18%);
+        transition: transform 180ms ease, border-color 180ms ease;
+      }
+
+      .game-card:hover,
+      .game-card:focus-within {
+        transform: translateY(-4px);
+        border-color: #72d7c4;
+      }
+
+      .game-picture {
+        display: block;
+        width: 100%;
+        height: auto;
+        background: #122039;
+      }
+
+      .game-info { padding: 1.25rem 1.4rem 1.5rem; }
+      .game-info h2 { margin: 0; font-size: 1.4rem; }
+      .game-info p { margin: 0.5rem 0 1.1rem; color: #aab7c9; line-height: 1.5; }
+
+      .play-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #72d7c4;
+        font-weight: 750;
+        text-decoration: none;
+      }
+
+      .play-link:hover { color: #a4f1e3; }
+      .play-link:focus-visible { outline: 3px solid #f3c969; outline-offset: 4px; }
+    </style>
   </head>
   <body>
-    <h1>Hello world!</h1>
+    <main>
+      <p class="eyebrow">The game shelf</p>
+      <h1>My Online Games</h1>
+      <p class="intro">A growing collection of little games to play. Pick a game and make your move.</p>
+      <section class="games" aria-label="Games">
+        <article class="game-card">
+          <svg class="game-picture" viewBox="0 0 640 360" role="img" aria-labelledby="connect-four-art-title">
+            <title id="connect-four-art-title">A Connect 4 board with red and yellow discs</title>
+            <defs>
+              <linearGradient id="board" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#4979ed"/>
+                <stop offset="1" stop-color="#2849ae"/>
+              </linearGradient>
+              <radialGradient id="red-disc" cx="35%" cy="25%">
+                <stop stop-color="#ff9a8b"/>
+                <stop offset="1" stop-color="#f04b5e"/>
+              </radialGradient>
+              <radialGradient id="yellow-disc" cx="35%" cy="25%">
+                <stop stop-color="#fff0a8"/>
+                <stop offset="1" stop-color="#ffc94d"/>
+              </radialGradient>
+            </defs>
+            <rect width="640" height="360" fill="#122039"/>
+            <g transform="translate(116 38)">
+              <rect width="408" height="284" rx="24" fill="url(#board)"/>
+              <g fill="#122039">
+                <circle cx="34" cy="34" r="21"/><circle cx="91" cy="34" r="21"/><circle cx="148" cy="34" r="21"/><circle cx="205" cy="34" r="21"/><circle cx="262" cy="34" r="21"/><circle cx="319" cy="34" r="21"/><circle cx="376" cy="34" r="21"/>
+                <circle cx="34" cy="77" r="21"/><circle cx="91" cy="77" r="21"/><circle cx="148" cy="77" r="21"/><circle cx="205" cy="77" r="21"/><circle cx="262" cy="77" r="21"/><circle cx="319" cy="77" r="21"/><circle cx="376" cy="77" r="21"/>
+                <circle cx="34" cy="120" r="21"/><circle cx="91" cy="120" r="21"/><circle cx="148" cy="120" r="21"/><circle cx="205" cy="120" r="21"/><circle cx="262" cy="120" r="21"/><circle cx="319" cy="120" r="21"/><circle cx="376" cy="120" r="21"/>
+                <circle cx="34" cy="163" r="21"/><circle cx="91" cy="163" r="21"/><circle cx="148" cy="163" r="21"/><circle cx="205" cy="163" r="21"/><circle cx="262" cy="163" r="21"/><circle cx="319" cy="163" r="21"/><circle cx="376" cy="163" r="21"/>
+                <circle cx="34" cy="206" r="21"/><circle cx="91" cy="206" r="21"/><circle cx="148" cy="206" r="21"/><circle cx="205" cy="206" r="21"/><circle cx="262" cy="206" r="21"/><circle cx="319" cy="206" r="21"/><circle cx="376" cy="206" r="21"/>
+                <circle cx="34" cy="249" r="21"/><circle cx="91" cy="249" r="21"/><circle cx="148" cy="249" r="21"/><circle cx="205" cy="249" r="21"/><circle cx="262" cy="249" r="21"/><circle cx="319" cy="249" r="21"/><circle cx="376" cy="249" r="21"/>
+              </g>
+              <g>
+                <circle cx="34" cy="249" r="18" fill="url(#red-disc)"/>
+                <circle cx="91" cy="249" r="18" fill="url(#yellow-disc)"/>
+                <circle cx="148" cy="249" r="18" fill="url(#red-disc)"/>
+                <circle cx="205" cy="249" r="18" fill="url(#yellow-disc)"/>
+                <circle cx="262" cy="249" r="18" fill="url(#red-disc)"/>
+                <circle cx="91" cy="206" r="18" fill="url(#red-disc)"/>
+                <circle cx="148" cy="206" r="18" fill="url(#yellow-disc)"/>
+                <circle cx="205" cy="206" r="18" fill="url(#red-disc)"/>
+                <circle cx="262" cy="206" r="18" fill="url(#yellow-disc)"/>
+                <circle cx="148" cy="163" r="18" fill="url(#red-disc)"/>
+                <circle cx="205" cy="163" r="18" fill="url(#yellow-disc)"/>
+                <circle cx="262" cy="163" r="18" fill="url(#red-disc)"/>
+              </g>
+            </g>
+          </svg>
+          <div class="game-info">
+            <h2>Connect 4</h2>
+            <p>Take turns dropping discs. Line up four to win.</p>
+            <a class="play-link" href="connect4.html">Play Connect 4 <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      </section>
+    </main>
   </body>
 </html>

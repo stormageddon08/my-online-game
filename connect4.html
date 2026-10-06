@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101a2a">
+    <title>Connect 4 | My Online Games</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #101a2a;
+        color: #f5f7fb;
+        --red: #f04b5e;
+        --yellow: #ffc94d;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 50% 5%, rgb(45 82 143 / 35%), transparent 42rem),
+          #101a2a;
+      }
+
+      main {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 1rem 2.5rem;
+      }
+
+      .topbar {
+        display: flex;
+        width: min(100%, 620px);
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      a { color: #aab7c9; text-decoration: none; }
+      a:hover { color: #72d7c4; }
+      a:focus-visible, button:focus-visible { outline: 3px solid #72d7c4; outline-offset: 4px; }
+
+      h1 {
+        margin: 2rem 0 0.5rem;
+        font-size: clamp(2.25rem, 8vw, 3.5rem);
+        letter-spacing: -0.06em;
+      }
+
+      .subtitle { margin: 0; color: #aab7c9; text-align: center; }
+
+      .game {
+        width: min(100%, 540px);
+        margin-top: 1.75rem;
+      }
+
+      .game-bar {
+        display: flex;
+        min-height: 3.75rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-size: clamp(1rem, 4vw, 1.2rem);
+        font-weight: 750;
+      }
+
+      .status-disc {
+        width: 1rem;
+        height: 1rem;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--red);
+        box-shadow: 0 0 1rem rgb(240 75 94 / 40%);
+      }
+
+      .status-disc.yellow { background: var(--yellow); box-shadow: 0 0 1rem rgb(255 201 77 / 35%); }
+      .status-disc.hidden { visibility: hidden; }
+
+      .reset {
+        border: 1px solid #40516a;
+        border-radius: 0.75rem;
+        padding: 0.65rem 0.9rem;
+        background: #1b2b42;
+        color: #f5f7fb;
+        font: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .reset:hover { background: #263a55; }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: clamp(0.3rem, 1.2vw, 0.55rem);
+        padding: clamp(0.55rem, 2vw, 0.9rem);
+        border: 1px solid #6187ee;
+        border-radius: clamp(1rem, 3vw, 1.5rem);
+        background: linear-gradient(145deg, #4979ed, #2849ae);
+        box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 30%), inset 0 1px rgb(255 255 255 / 20%);
+      }
+
+      .column {
+        display: grid;
+        min-width: 0;
+        grid-template-rows: repeat(6, 1fr);
+        gap: clamp(0.3rem, 1.2vw, 0.55rem);
+        border: 0;
+        border-radius: 50%;
+        padding: 0;
+        background: transparent;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .column:disabled { cursor: default; }
+
+      .cell {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #14233d;
+        box-shadow: inset 0 3px 7px rgb(0 0 0 / 30%);
+        transition: background-color 130ms ease, transform 130ms ease;
+      }
+
+      .cell.red { background: var(--red); box-shadow: inset 0 3px 5px rgb(255 255 255 / 25%), 0 2px 4px rgb(0 0 0 / 20%); }
+      .cell.yellow { background: var(--yellow); box-shadow: inset 0 3px 5px rgb(255 255 255 / 35%), 0 2px 4px rgb(0 0 0 / 20%); }
+      .column:not(:disabled):hover .cell:not(.red, .yellow):first-child { transform: translateY(-3px); background: #213552; }
+
+      .instructions {
+        margin: 1rem 0 0;
+        color: #aab7c9;
+        font-size: 0.9rem;
+        text-align: center;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 420px) {
+        main { padding-inline: 0.75rem; }
+        .game-bar { margin-bottom: 0.7rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="topbar" aria-label="Main navigation">
+        <a href="index.html">← All games</a>
+        <span>Two players · one board</span>
+      </nav>
+      <h1>Connect 4</h1>
+      <p class="subtitle">Drop a disc. Connect four. Win the game.</p>
+
+      <section class="game" aria-label="Connect 4 game">
+        <div class="game-bar">
+          <div class="status" aria-live="polite" aria-atomic="true">
+            <span class="status-disc" id="status-disc" aria-hidden="true"></span>
+            <span id="status-message">Red's turn</span>
+          </div>
+          <button class="reset" id="reset" type="button">New game</button>
+        </div>
+        <div class="board" id="board" role="group" aria-label="Connect 4 board"></div>
+        <p class="instructions">Choose a column to drop your disc. Connect four horizontally, vertically, or diagonally.</p>
+      </section>
+    </main>
+    <script>
+      const ROWS = 6;
+      const COLUMNS = 7;
+      const boardElement = document.querySelector("#board");
+      const statusDisc = document.querySelector("#status-disc");
+      const statusMessage = document.querySelector("#status-message");
+      const grid = Array.from({ length: ROWS }, () => Array(COLUMNS).fill(null));
+      const columnButtons = [];
+      let currentPlayer = "red";
+      let gameOver = false;
+
+      function renderBoard() {
+        boardElement.replaceChildren();
+        columnButtons.length = 0;
+
+        for (let column = 0; column < COLUMNS; column += 1) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "column";
+          button.setAttribute("aria-label", `Drop ${currentPlayer} disc in column ${column + 1}`);
+          button.disabled = gameOver || grid[0][column] !== null;
+          button.addEventListener("click", () => dropDisc(column));
+
+          for (let row = 0; row < ROWS; row += 1) {
+            const cell = document.createElement("span");
+            cell.className = "cell";
+            if (grid[row][column]) cell.classList.add(grid[row][column]);
+            cell.setAttribute("aria-hidden", "true");
+            button.append(cell);
+          }
+
+          boardElement.append(button);
+          columnButtons.push(button);
+        }
+      }
+
+      function hasWon(row, column, player) {
+        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+        return directions.some(([rowStep, columnStep]) => {
+          let count = 1;
+
+          for (const sign of [-1, 1]) {
+            let nextRow = row + rowStep * sign;
+            let nextColumn = column + columnStep * sign;
+            while (
+              nextRow >= 0 && nextRow < ROWS &&
+              nextColumn >= 0 && nextColumn < COLUMNS &&
+              grid[nextRow][nextColumn] === player
+            ) {
+              count += 1;
+              nextRow += rowStep * sign;
+              nextColumn += columnStep * sign;
+            }
+          }
+          return count >= 4;
+        });
+      }
+
+      function setStatus(message, player = null) {
+        statusMessage.textContent = message;
+        statusDisc.classList.toggle("yellow", player === "yellow");
+        statusDisc.classList.toggle("hidden", player === null);
+      }
+
+      function dropDisc(column) {
+        if (gameOver || grid[0][column] !== null) return;
+
+        let row = ROWS - 1;
+        while (row >= 0 && grid[row][column] !== null) row -= 1;
+        if (row < 0) return;
+
+        grid[row][column] = currentPlayer;
+
+        if (hasWon(row, column, currentPlayer)) {
+          gameOver = true;
+          setStatus(`${currentPlayer === "red" ? "Red" : "Yellow"} wins!`, currentPlayer);
+        } else if (grid.every(boardRow => boardRow.every(cell => cell !== null))) {
+          gameOver = true;
+          setStatus("It's a draw!");
+        } else {
+          currentPlayer = currentPlayer === "red" ? "yellow" : "red";
+          setStatus(`${currentPlayer === "red" ? "Red" : "Yellow"}'s turn`, currentPlayer);
+        }
+
+        renderBoard();
+      }
+
+      function newGame() {
+        for (const row of grid) row.fill(null);
+        currentPlayer = "red";
+        gameOver = false;
+        setStatus("Red's turn", currentPlayer);
+        renderBoard();
+        columnButtons[0].focus();
+      }
+
+      document.querySelector("#reset").addEventListener("click", newGame);
+      setStatus("Red's turn", currentPlayer);
+      renderBoard();
+    </script>
+  </body>
+</html>
