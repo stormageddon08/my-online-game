@@ -84,7 +84,7 @@
         <p>Stay in the arena. Avoid every obstacle.</p>
       </div>
       <h1>Horseback Riding</h1>
-      <p class="intro">Choose your horse, give them a name, and guide them safely around the arena. Start at a walk, then use trot only when you have space to react.</p>
+      <p class="intro">Choose your horse, give them a name, and ride from the saddle through a 3D arena. Start at a walk, then use trot only when you have space to react.</p>
 
       <section class="arena" aria-label="Horseback riding simulator">
         <canvas id="arena" width="1280" height="720" aria-label="Riding arena"></canvas>
@@ -94,7 +94,7 @@
           <div id="score-status">Distance: 0 m</div>
         </div>
         <div class="screen" id="setup-screen">
-          <form class="panel" id="setup-form">
+          <form class="panel" id="setup-form" novalidate>
             <h2>Meet your horse</h2>
             <p>Pick one of three horses, then name your riding partner.</p>
             <div class="horse-choices" aria-label="Choose a horse">
@@ -115,7 +115,7 @@
               <button class="clear-course" id="clear-course" type="button">Clear course</button>
             </div>
             <div class="planner" id="planner" aria-label="Arena course planner"></div>
-            <button class="start" type="submit">Start riding</button>
+            <button class="start" id="start-ride" type="button">Start riding</button>
           </form>
         </div>
         <div class="screen" id="game-over-screen" hidden>
@@ -262,38 +262,29 @@
         context.restore();
       }
 
-      function drawHorse() {
-        const x = canvas.width / 2 + state.position * 300;
-        const y = canvas.height - 95;
+      function drawRiderView() {
+        const x = canvas.width / 2;
+        const y = canvas.height - 34;
         const bob = state.riding ? Math.sin(state.distance * (state.trotting ? 0.7 : 0.35)) * (state.trotting ? 8 : 3) - (state.jumping ? 62 : 0) : 0;
         context.save();
         context.translate(x, y + bob);
         context.fillStyle = state.horseColor;
         context.beginPath();
-        context.ellipse(0, 0, 70, 34, 0, 0, Math.PI * 2);
+        context.moveTo(-100, 0);
+        context.quadraticCurveTo(-84, -125, -38, -145);
+        context.quadraticCurveTo(-12, -102, 0, -52);
+        context.quadraticCurveTo(12, -102, 38, -145);
+        context.quadraticCurveTo(84, -125, 100, 0);
+        context.closePath();
         context.fill();
-        context.fillRect(48, -55, 28, 64);
+        context.fillStyle = "#241a15";
         context.beginPath();
-        context.ellipse(76, -60, 28, 20, -0.2, 0, Math.PI * 2);
+        context.moveTo(-18, -50);
+        context.quadraticCurveTo(0, -98, 18, -50);
+        context.lineTo(8, 8);
+        context.lineTo(-8, 8);
+        context.closePath();
         context.fill();
-        context.fillStyle = "#251b16";
-        context.fillRect(-48, 22, 13, 68);
-        context.fillRect(-5, 22, 13, 68);
-        context.fillRect(42, 22, 13, 68);
-        context.fillStyle = "#f5ead4";
-        context.beginPath();
-        context.arc(88, -62, 4, 0, Math.PI * 2);
-        context.fill();
-        context.fillStyle = "#2d3a52";
-        context.beginPath();
-        context.ellipse(-5, -32, 25, 10, 0, 0, Math.PI * 2);
-        context.fill();
-        context.fillStyle = "#f0c7a0";
-        context.beginPath();
-        context.arc(-5, -59, 15, 0, Math.PI * 2);
-        context.fill();
-        context.fillStyle = "#344d83";
-        context.fillRect(-20, -80, 30, 17);
         context.restore();
       }
 
@@ -332,7 +323,7 @@
         }
         drawFence();
         [...state.obstacles].sort((a, b) => b.z - a.z).forEach(drawObstacle);
-        drawHorse();
+        drawRiderView();
       }
 
       function endRide(reason) {
@@ -391,17 +382,28 @@
         });
       });
 
-      setupForm.addEventListener("submit", (event) => {
-        event.preventDefault();
+      function startRide() {
         state.horseName = horseNameInput.value.trim() || state.selectedHorse;
         state.position = 0;
         state.distance = 0;
+        state.steering = 0;
+        state.trotting = false;
+        state.jumping = false;
         state.obstacles = state.plannedObstacles.map((obstacle) => ({ ...obstacle }));
         state.riding = true;
         state.lastFrame = performance.now();
         setupScreen.hidden = true;
         gameOverScreen.hidden = true;
+        trotButton.classList.remove("active");
+        trotButton.setAttribute("aria-pressed", "false");
+        jumpButton.classList.remove("active");
+      }
+
+      setupForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        startRide();
       });
+      document.querySelector("#start-ride").addEventListener("click", startRide);
 
       function setSteering(direction) { state.steering = state.riding ? direction : 0; }
       [["pointerdown", (direction) => setSteering(direction)], ["pointerup", () => setSteering(0)], ["pointerleave", () => setSteering(0)], ["pointercancel", () => setSteering(0)]].forEach(([eventName, handler]) => {
