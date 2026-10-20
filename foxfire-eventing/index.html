@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#263d2a">
+    <meta name="description" content="Foxfire Eventing is a youth-founded, volunteer-run horse organization in central Virginia.">
+    <title>Foxfire Eventing | Learning through service</title>
+    <style>
+      :root {
+        --ink: #18301f;
+        --pine: #263d2a;
+        --moss: #596f4d;
+        --sage: #d9dfc9;
+        --cream: #f8f5ed;
+        --clay: #a95135;
+        --gold: #d8a64b;
+        --line: #d5d4c6;
+        --muted: #566158;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--ink);
+        background: var(--cream);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; line-height: 1.55; }
+      a { color: inherit; }
+      a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+      .wrap { width: min(100% - 2.5rem, 76rem); margin-inline: auto; }
+
+      .notice {
+        padding: 0.7rem 1rem;
+        background: var(--gold);
+        color: #33220b;
+        font-family: Arial, sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-align: center;
+      }
+
+      header {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        padding: 1.25rem 0;
+        color: #fffdf7;
+      }
+
+      .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+      .brand { color: inherit; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.08em; text-decoration: none; text-transform: uppercase; }
+      .brand span { display: block; margin-top: 0.1rem; font-family: Arial, sans-serif; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em; text-align: center; }
+      .nav { display: flex; flex-wrap: wrap; justify-content: end; gap: 1.25rem; font-family: Arial, sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+      .nav a { text-decoration: none; }
+      .nav a:hover { color: #f5ce7a; }
+      .riding-game { padding: 0.5rem 0.7rem; border: 1px solid rgb(255 253 247 / 70%); border-radius: 999px; color: inherit; font-family: Arial, sans-serif; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+      .riding-game:hover { border-color: #f5ce7a; color: #f5ce7a; }
+
+      .hero {
+        display: grid;
+        min-height: 43rem;
+        align-items: end;
+        padding: 8rem 0 4rem;
+        color: #fffdf7;
+        background:
+          linear-gradient(90deg, rgb(16 35 20 / 84%) 0%, rgb(16 35 20 / 60%) 45%, rgb(16 35 20 / 24%) 100%),
+          url("https://images.unsplash.com/photo-1551884831-bbf3cdc6469e?auto=format&fit=crop&w=1800&q=85") center / cover,
+          var(--pine);
+      }
+
+      .hero-content { max-width: 43rem; }
+      .kicker { margin: 0 0 1rem; color: #f5ce7a; font-family: Arial, sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { max-width: 44rem; margin-bottom: 1.25rem; font-size: clamp(3.4rem, 8vw, 6.8rem); font-weight: 400; letter-spacing: -0.055em; line-height: 0.91; }
+      .hero-copy { max-width: 34rem; margin-bottom: 2rem; color: #f5f0e3; font-size: 1.18rem; }
+      .button {
+        display: inline-block;
+        padding: 0.85rem 1.15rem;
+        border: 1px solid var(--clay);
+        background: var(--clay);
+        color: white;
+        font-family: Arial, sans-serif;
+        font-size: 0.77rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+      .button:hover { border-color: #c26547; background: #c26547; }
+      .button.light { border-color: var(--cream); background: var(--cream); color: var(--ink); }
+      .button.light:hover { background: #e9e2d3; }
+
+      section { padding: clamp(4rem, 9vw, 7rem) 0; }
+      .section-label { margin-bottom: 0.7rem; color: var(--clay); font-family: Arial, sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+      h2 { max-width: 18ch; font-size: clamp(2.35rem, 5vw, 4.1rem); font-weight: 400; letter-spacing: -0.045em; line-height: 1.02; }
+      h3 { font-size: 1.35rem; font-weight: 400; line-height: 1.15; }
+      .body-copy { color: var(--muted); font-size: 1.07rem; }
+      .split { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 1.2fr); gap: clamp(2rem, 7vw, 7rem); }
+
+      .values { background: var(--sage); }
+      .values-intro { max-width: 43rem; color: #304136; font-size: 1.2rem; }
+      .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 3rem; background: #aebaa3; }
+      .principle { padding: 1.6rem; background: #e6ead9; }
+      .principle p { margin-bottom: 0; color: #4e6053; }
+      .number { color: var(--clay); font-family: Arial, sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; }
+
+      .photo-panel {
+        display: grid;
+        min-height: 29rem;
+        place-items: end start;
+        padding: 1.5rem;
+        color: white;
+        background:
+          linear-gradient(0deg, rgb(18 38 24 / 65%), transparent 55%),
+          url("https://images.unsplash.com/photo-1534773728080-33d31da27ae5?auto=format&fit=crop&w=1000&q=85") center / cover,
+          var(--moss);
+      }
+      .photo-panel p { max-width: 18rem; margin: 0; font-size: 1.35rem; line-height: 1.2; }
+      .training-copy p + p { margin-top: 1.5rem; }
+      .callout { margin-top: 2rem; padding: 1.3rem 1.5rem; border-left: 4px solid var(--gold); background: #f1eedf; color: var(--ink); font-size: 1.17rem; }
+
+      .disciplines { background: var(--pine); color: #fffdf7; }
+      .disciplines .section-label { color: #f5ce7a; }
+      .disciplines h2 { max-width: 18rem; }
+      .discipline-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 3rem; }
+      .discipline { padding: 1.75rem; border-top: 1px solid #829176; background: #344c37; }
+      .discipline p { margin-bottom: 0; color: #e4e9d9; }
+      .discipline:first-child { grid-column: 1 / -1; background: #3d563d; }
+      .discipline:first-child p { max-width: 65rem; font-size: 1.08rem; }
+
+      .horses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 3rem; background: var(--line); }
+      .horse { min-height: 14rem; padding: 1.5rem; background: var(--cream); }
+      .horse h3 { margin-bottom: 0.45rem; }
+      .horse p { color: var(--muted); font-size: 0.92rem; }
+      .horse .button { margin-top: 0.5rem; }
+      .horse.supported { background: #eff0e5; }
+      .horse-note { color: var(--clay); font-family: Arial, sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+      .horse-intro { max-width: 48rem; color: var(--muted); font-size: 1.05rem; }
+
+      .giving { background: #eee7d7; }
+      .give-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 3rem; background: #d3c7b2; }
+      .gift { display: flex; min-height: 15rem; flex-direction: column; padding: 1.5rem; background: #f8f5ed; }
+      .gift h3 { margin-bottom: 0.4rem; }
+      .amount { margin-bottom: 0.8rem; color: var(--clay); font-family: Arial, sans-serif; font-size: 1.3rem; font-weight: 800; }
+      .gift p { margin-bottom: 1.25rem; color: var(--muted); }
+      .gift .button { margin-top: auto; align-self: flex-start; }
+      .giving-note { max-width: 52rem; margin: 2rem 0 0; color: var(--muted); }
+      .giving-note a { color: var(--clay); font-weight: 700; }
+
+      .partners { text-align: center; }
+      .partners h2 { margin-inline: auto; }
+      .partner-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin: 2.5rem auto 0; padding: 0; list-style: none; }
+      .partner-list li { padding: 1rem 1.2rem; border: 1px solid var(--line); font-family: Arial, sans-serif; font-size: 0.83rem; font-weight: 700; }
+      .partner-list span { display: block; margin-top: 0.2rem; color: var(--muted); font-size: 0.71rem; font-weight: 400; }
+
+      footer { padding: 3.5rem 0; background: #16291c; color: #f9f5e9; }
+      .footer-grid { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end; }
+      .footer-brand { margin-bottom: 0.4rem; font-size: 1.5rem; letter-spacing: -0.03em; }
+      footer p { margin-bottom: 0; color: #c8d3c1; }
+      footer a { color: #f5ce7a; }
+      .address { font-style: normal; line-height: 1.7; text-align: right; }
+
+      @media (max-width: 760px) {
+        .nav { display: none; }
+        .hero { min-height: 38rem; }
+        .split, .discipline-grid, .horses-grid, .give-grid { grid-template-columns: 1fr; }
+        .discipline:first-child { grid-column: auto; }
+        .principles { grid-template-columns: 1fr; }
+        .footer-grid { grid-template-columns: 1fr; }
+        .address { text-align: left; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="notice">An all-volunteer barn · Please reach out before visiting to arrange a time.</div>
+    <header>
+      <div class="wrap header-inner">
+        <a class="brand" href="#top">Foxfire<span>Eventing, Inc.</span></a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="#about">Our approach</a>
+          <a href="#eventing">Eventing</a>
+          <a href="#horses">Our horses</a>
+          <a href="#give">Give</a>
+        </nav>
+        <a class="riding-game" href="../horse-riding-game.html">Horseback riding game</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="wrap hero-content">
+          <p class="kicker">Goochland, Virginia</p>
+          <h1 id="hero-title">Learning through service.</h1>
+          <p class="hero-copy">A youth-founded, volunteer-run horse organization where young people build horsemanship, leadership, and lifelong partnerships.</p>
+          <a class="button" href="#give">Support Foxfire</a>
+        </div>
+      </section>
+
+      <section id="about">
+        <div class="wrap split">
+          <div>
+            <p class="section-label">Horses and humans</p>
+            <h2>Horsemanship starts with listening.</h2>
+          </div>
+          <div class="body-copy">
+            <p>At Foxfire, horsemanship begins with communication, relationship, and respect for the individual. Both our horses and our humans come to us with diverse backgrounds, experiences, strengths, challenges, and goals, and good horsemanship means learning to understand the individual in front of you. Care team and volunteers handle horses with collaborative leadership. Riders, who are also always part of the care team, learn not to "make a horse perform a task," but to listen, communicate clearly, build trust, and develop partnerships over time. We believe those skills matter in the saddle, on the ground, and far beyond the barn.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="values">
+        <div class="wrap">
+          <p class="section-label">Our community</p>
+          <h2>There is no paid staff at Foxfire.</h2>
+          <p class="values-intro">Everyone who teaches, feeds, mucks stalls, and cares for our herd is a volunteer. Our program is built on shared responsibility, meaningful service, and steady care.</p>
+          <div class="principles">
+            <article class="principle"><p class="number">01</p><h3>Care together</h3><p>Riders are always part of the care team, learning the daily work that makes a good partnership possible.</p></article>
+            <article class="principle"><p class="number">02</p><h3>Meet you where you are</h3><p>Foxfire welcomes beginners and experienced riders alike, with room for individual goals and growth.</p></article>
+            <article class="principle"><p class="number">03</p><h3>Serve with purpose</h3><p>Hands-on work at the barn builds confidence, leadership, and care for the whole community.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap split">
+          <div class="photo-panel" role="img" aria-label="Horse and rider in a field">
+            <p>A foundation built on patient communication and good horsemanship.</p>
+          </div>
+          <div class="training-copy body-copy">
+            <p class="section-label">Our training foundation</p>
+            <h2>Thoughtful work, on the ground and in the saddle.</h2>
+            <p>All of our riders are taught from a foundation of dressage-based flatwork, with an emphasis on developing correct position, balance, effective aids, and thoughtful communication between horse and rider. As riders progress, they may choose to pursue jumping when they, their parents, and their instructors or mentors agree that they are ready, but jumping is never a requirement. Some Foxfire riders choose to focus exclusively on dressage, and there is a lifetime of horsemanship, skill, and partnership to develop without ever leaving the ground.</p>
+            <p class="callout">Very experienced in the saddle? We can help you meet goals to move up the levels!</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="disciplines" id="eventing">
+        <div class="wrap">
+          <p class="section-label">The sport</p>
+          <h2>Three phases. One partnership.</h2>
+          <div class="discipline-grid">
+            <article class="discipline">
+              <h3>Eventing</h3>
+              <p>Eventing is an equestrian triathlon in which horse-and-rider partnerships compete in three distinct phases: dressage, cross-country, and show jumping. The sport tests far more than proficiency in three separate disciplines. It requires a horse to combine obedience and correct training with athleticism, endurance, courage, carefulness, and adaptability. Riders must develop their horses systematically so that the same partnership can produce precise, controlled work in the dressage arena, gallop boldly and efficiently across country, and return to the show-jumping ring with the balance and accuracy to leave the rails up. The result is one of the most comprehensive tests of horse and rider in equestrian sport.</p>
+            </article>
+            <article class="discipline">
+              <h3>Dressage</h3>
+              <p>Dressage provides the foundation for every phase of eventing. The test evaluates the quality of the horse's training through rhythm, suppleness, contact, impulsion, straightness, balance, and obedience, as well as the harmony and effectiveness of the partnership. Rather than simply performing a prescribed series of movements, horse and rider demonstrate the progressive development of the horse's way of going and the qualities that make the horse more rideable, adjustable, and athletic throughout the competition.</p>
+            </article>
+            <article class="discipline">
+              <h3>Cross-Country</h3>
+              <p>Cross-country is the defining endurance and bravery test of eventing. Horse and rider travel at speed over varied terrain while negotiating solid obstacles and technical questions that may include banks, ditches, water, combinations, and changes of elevation. A successful round requires courage and trust, but also balance, adjustability, accuracy, stamina, and sound judgment. The rider must establish an efficient rhythm, choose appropriate lines and speeds, and prepare the horse for each question without unnecessarily disrupting the gallop.</p>
+            </article>
+            <article class="discipline">
+              <h3>Show Jumping</h3>
+              <p>Show jumping tests the horse and rider's ability to negotiate a course of obstacles accurately within an allowed time while leaving the fences standing. Success requires balance, adjustability, impulsion, carefulness, and an effective, economical track. In eventing, the phase also demonstrates whether the horse's training allows the rider to maintain rhythm and control while producing the power and technique necessary to jump cleanly.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="horses">
+        <div class="wrap">
+          <p class="section-label">Our horses</p>
+          <h2>Every horse has a story.</h2>
+          <p class="horse-intro">Our horses come to us from many different backgrounds. Some have been well loved and cared for, but their families encountered changes or challenges in life; others have experienced neglect, inadequate care, or even abuse. Whatever their history, each horse is treated as an individual, with thoughtfully tailored nutrition, appropriate veterinary and farrier care, safe and knowledgeable handling, and training designed around that horse's physical and emotional needs. Our volunteers, team members, and riders become part of that process, learning how consistent care, patient communication, and good horsemanship help horses become healthy, confident partners.</p>
+          <div class="horses-grid">
+            <article class="horse supported"><h3>Zarah</h3><p class="horse-note">Sponsorship available</p><a class="button" href="https://givebutter.com/PwZth7?amount=335">Help sponsor</a></article>
+            <article class="horse supported"><h3>Boss Man</h3><p>Our surprisingly elegant, unexpectedly athletic, resident class clown and reigning Chubbiest Showman! Boss is everyone's go-to for a good laugh, always in your pocket and up for a cuddle. The pudgy exterior fools people: riders and spectators are always surprised by his lovely movement in dressage and his athleticism over jumps. He's taught plenty of riders the basics and more.</p><a class="button" href="https://givebutter.com/PwZth7?amount=335">Help sponsor</a></article>
+            <article class="horse supported"><h3>Donovan</h3><p class="horse-note">Sponsorship available · Farrier care: $150/month</p><a class="button" href="https://givebutter.com/PwZth7?amount=150">Sponsor farrier care</a></article>
+            <article class="horse supported"><h3>Juliette</h3><p>A Budyonny, a Russian sport horse breed known for being incredibly smart and headstrong, and Juliette certainly lives up to it. With her hair "full of secrets," she has an opinion on just about everything and believes she is in charge of the mare field, which may be true. A bit bossy and always ready to be the center of attention, she's also as sweet as can be and loves a good snuggle.</p><a class="button" href="https://givebutter.com/PwZth7?amount=335">Help sponsor</a></article>
+            <article class="horse supported"><h3>Orko</h3><p>When international eventer Liz Halliday met our youth team at the Kentucky Three-Day Event in 2024, she wrote Orko a note to "keep fighting" as he transitioned to his new life. That note has hung in our horse trailer and on his stall at his first event, and her fighting spirit has inspired us all.</p><a class="button" href="https://givebutter.com/PwZth7?amount=335">Help sponsor</a></article>
+            <article class="horse supported"><h3>Joel</h3><p class="horse-note">Sponsorship available</p><a class="button" href="https://givebutter.com/PwZth7?amount=335">Help sponsor</a></article>
+            <article class="horse"><h3>DD</h3><p>The sweetest, silliest mare. DD was a Western trail horse in Nevada before joining Foxfire in 2017. She often leads the group on trails and is generally popular with dressage judges, despite looking like she was put together with the body from one kit and legs from another. Her jump is high and athletic, and she's taught many riders their first walk, trot, and dressage tests.</p></article>
+            <article class="horse"><h3>Ricky</h3><p>Part of the Foxfire youth team.</p></article>
+            <article class="horse"><h3>Nettie</h3><p>Part of the Foxfire youth team.</p></article>
+            <article class="horse"><h3>Rio</h3><p>In the care program only.</p></article>
+            <article class="horse"><h3>Hero</h3><p>In the care program only.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="giving" id="give">
+        <div class="wrap">
+          <p class="section-label">Give with purpose</p>
+          <h2>Your gift keeps the herd cared for.</h2>
+          <div class="give-grid">
+            <article class="gift"><h3>One load of hay</h3><p class="amount">$273</p><p>One truckload of hay, given individually or together with friends.</p><a class="button" href="https://givebutter.com/PwZth7?amount=273">Give $273</a></article>
+            <article class="gift"><h3>Partial care sponsorship</h3><p class="amount">$335</p><p>Care for one horse for one month.</p><a class="button" href="https://givebutter.com/PwZth7?amount=335">Give $335</a></article>
+            <article class="gift"><h3>Full care sponsorship</h3><p class="amount">$435</p><p>Full care for one horse for one month.</p><a class="button" href="https://givebutter.com/PwZth7?amount=435">Give $435</a></article>
+            <article class="gift"><h3>Send a rider to compete</h3><p class="amount">$85</p><p>A local combined-training show in central Virginia.</p><a class="button" href="https://givebutter.com/PwZth7?amount=85">Give $85</a></article>
+            <article class="gift"><h3>Summer camp</h3><p class="amount">$225–$450</p><p>One week of half-days or a full week of all-day camp.</p><a class="button" href="https://givebutter.com/PwZth7?amount=225">Support camp</a></article>
+            <article class="gift"><h3>Barn projects</h3><p class="amount">$600–$1,000+</p><p>General barn repairs, improvements, and long-term projects.</p><a class="button" href="https://givebutter.com/PwZth7?amount=600">Fund a project</a></article>
+          </div>
+          <p class="giving-note">Our monthly herd costs include <strong>$2,000 for hay</strong>, <strong>$1,600 for grain</strong>, and <strong>$150 for Donovan's farrier care</strong>. Gifts are processed securely by <a href="https://givebutter.com/PwZth7">Givebutter</a>, which accepts cards, PayPal, and Venmo. Givebutter may suggest an optional tip at checkout; that tip goes to Givebutter, not Foxfire.</p>
+        </div>
+      </section>
+
+      <section class="partners">
+        <div class="wrap">
+          <p class="section-label">Thank you</p>
+          <h2>Partners who keep us going.</h2>
+          <ul class="partner-list">
+            <li>Soggy Bottom Farm<span>Hay</span></li>
+            <li>Purina<span>Grain</span></li>
+            <li>Tractor Supply Company<span>Grain</span></li>
+            <li>Ashland Feed<span>Feed</span></li>
+            <li>Phillips Family Farrier Services<span>Hoof care</span></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap footer-grid">
+        <div>
+          <div class="footer-brand">Foxfire Eventing, Inc.</div>
+          <p>Learning through service · A 501(c)(3) public charity<br>EIN 82-3219011 · Donations are tax-deductible as allowed by law.</p>
+        </div>
+        <address class="address">4511 3 Square Rd<br>Goochland, VA 23063<br><a href="https://givebutter.com/PwZth7">Support Foxfire</a></address>
+      </div>
+    </footer>
+  </body>
+</html>
