@@ -180,7 +180,7 @@
         view.style.setProperty("--horse-tilt", `${viewTurn * 5}deg`);
         view.style.setProperty("--look-shift", `${viewTurn * -10}%`);
         view.style.setProperty("--scene-angle", `${state.viewRotation}deg`);
-        arenaFence.classList.toggle("visible", frontDistance <= 2);
+        arenaFence.classList.toggle("visible", frontDistance <= 5);
       }
 
       function move(direction) {
