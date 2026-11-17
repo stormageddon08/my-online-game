@@ -43,9 +43,10 @@
         --ground-x: 0%;
         --ground-y: 0%;
         --horse-tilt: 0deg;
-        --fence-shift: 0px;
         --look-shift: 0%;
-        --fence-scale: 0.8;
+        --front-fence-scale: 0.8;
+        --left-fence-scale: 0.8;
+        --right-fence-scale: 0.8;
         position: relative;
         isolation: isolate;
         overflow: hidden;
@@ -73,10 +74,11 @@
         transform-origin: top;
         transition: background-position 250ms ease;
       }
-      .fence-layer { position: absolute; inset: 0; transition: opacity 400ms ease; }
-      .fence-layer.previous { opacity: 0; }
-      .fence-layer.previous.visible { opacity: 1; }
-      .far-fence { position: absolute; top: 44%; left: -8%; width: 116%; height: 4.2rem; border-top: 0.7rem solid #613a29; border-bottom: 0.7rem solid #7d4930; background: repeating-linear-gradient(90deg, #2d211b 0 0.45rem, #8b4e30 0.45rem 1.2rem, #f3e7c7 1.2rem 1.45rem, #5c3525 1.45rem 2.1rem, transparent 2.1rem 4.6rem); background-position: var(--fence-shift) 0; box-shadow: 0 0 0 0.22rem #33231b; transform: scale(var(--fence-scale)); transform-origin: center; transition: transform 300ms ease; }
+      .fence-view { position: absolute; pointer-events: none; transition: opacity 250ms ease, transform 300ms ease; }
+      .fence-view.front { top: 42%; left: -8%; width: 116%; opacity: 0.85; transform: perspective(22rem) rotateX(10deg) scale(var(--front-fence-scale)); transform-origin: center; }
+      .fence-view.left { top: 39%; left: -27%; width: 82%; opacity: 0.5; transform: perspective(22rem) rotateY(55deg) scale(var(--left-fence-scale)); transform-origin: right center; }
+      .fence-view.right { top: 39%; right: -27%; width: 82%; opacity: 0.5; transform: perspective(22rem) rotateY(-55deg) scale(var(--right-fence-scale)); transform-origin: left center; }
+      .far-fence { width: 100%; height: 4.2rem; border-top: 0.7rem solid #613a29; border-bottom: 0.7rem solid #7d4930; background: repeating-linear-gradient(90deg, #2d211b 0 0.45rem, #8b4e30 0.45rem 1.2rem, #f3e7c7 1.2rem 1.45rem, #5c3525 1.45rem 2.1rem, transparent 2.1rem 4.6rem); box-shadow: 0 0 0 0.22rem #33231b; }
       .horse-head { position: absolute; bottom: -0.6rem; left: 50%; width: 11rem; height: 8rem; transform: translateX(-50%) rotate(var(--horse-tilt)); transition: transform 110ms linear; }
       .horse-head::before { position: absolute; left: 1.4rem; top: 1.2rem; width: 8.2rem; height: 8rem; border-radius: 46% 46% 30% 30%; background: var(--horse-color); content: ""; box-shadow: inset 1.2rem 0 rgb(255 255 255 / 10%), inset -1rem 0 rgb(0 0 0 / 13%); }
       .ear { position: absolute; z-index: 1; top: -0.8rem; width: 2.4rem; height: 4.4rem; border-radius: 90% 10% 70% 20%; background: var(--horse-color); }
@@ -151,8 +153,9 @@
       <div class="view" id="view" role="img" aria-label="First-person view from horseback in a fenced riding arena">
         <div class="scene">
           <div class="sun"></div><div class="horizon"></div><div class="ground-lines"></div>
-          <div class="fence-layer previous" id="previous-fence" aria-hidden="true"><div class="far-fence"></div></div>
-          <div class="fence-layer" id="current-fence"><div class="far-fence"></div></div>
+          <div class="fence-view front" id="front-fence" aria-hidden="true"><div class="far-fence"></div></div>
+          <div class="fence-view left" id="left-fence" aria-hidden="true"><div class="far-fence"></div></div>
+          <div class="fence-view right" id="right-fence" aria-hidden="true"><div class="far-fence"></div></div>
         </div>
         <div class="horse-head" id="horse-head"><span class="ear left"></span><span class="ear right"></span><span class="mane"></span></div>
       </div>
@@ -170,48 +173,56 @@
       const horseName = document.querySelector("#horse-name");
       const rideNote = document.querySelector("#ride-note");
       const controls = document.querySelector("#controls");
-      const currentFence = document.querySelector("#current-fence");
-      const previousFence = document.querySelector("#previous-fence");
-      let fenceTimer;
+      const frontFence = document.querySelector("#front-fence");
+      const leftFence = document.querySelector("#left-fence");
+      const rightFence = document.querySelector("#right-fence");
+      const directions = [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
+
+      function distanceToFence(direction) {
+        if (direction.x === 1) return 14 - state.x;
+        if (direction.x === -1) return state.x;
+        if (direction.y === 1) return 14 - state.y;
+        return state.y;
+      }
+
+      function fenceScale(distance) {
+        return 0.76 + (1 / (distance + 1)) * 0.95;
+      }
 
       function render() {
         view.style.setProperty("--horse-color", state.color);
         view.style.setProperty("--ground-x", `${-state.x * 23}px`);
         view.style.setProperty("--ground-y", `${-state.y * 23}px`);
-        const viewTurn = Math.max(-2, Math.min(2, state.heading));
-        const edgeDistance = Math.min(state.x, state.y, 14 - state.x, 14 - state.y);
-        const fenceScale = 0.8 + ((7 - edgeDistance) / 7) * 0.55;
+        const viewTurn = state.heading === 3 ? -1 : state.heading === 1 ? 1 : 0;
+        const frontDirection = directions[state.heading];
+        const leftDirection = directions[(state.heading + 3) % 4];
+        const rightDirection = directions[(state.heading + 1) % 4];
+        const frontDistance = distanceToFence(frontDirection);
+        const leftDistance = distanceToFence(leftDirection);
+        const rightDistance = distanceToFence(rightDirection);
         view.style.setProperty("--horse-tilt", `${viewTurn * 5}deg`);
         view.style.setProperty("--look-shift", `${viewTurn * -10}%`);
-        view.style.setProperty("--fence-scale", fenceScale);
-        currentFence.style.setProperty("--fence-shift", `${(state.x * 31 + state.y * 19) % 74}px`);
-      }
-
-      function updateFence() {
-        window.clearTimeout(fenceTimer);
-        previousFence.style.setProperty("--fence-shift", currentFence.style.getPropertyValue("--fence-shift"));
-        previousFence.classList.add("visible");
-        render();
-        fenceTimer = window.setTimeout(() => previousFence.classList.remove("visible"), 450);
+        view.style.setProperty("--front-fence-scale", fenceScale(frontDistance));
+        view.style.setProperty("--left-fence-scale", fenceScale(leftDistance));
+        view.style.setProperty("--right-fence-scale", fenceScale(rightDistance));
+        frontFence.style.opacity = frontDistance <= 5 ? "1" : "0.35";
+        leftFence.style.opacity = leftDistance <= 5 ? "0.9" : "0.25";
+        rightFence.style.opacity = rightDistance <= 5 ? "0.9" : "0.25";
       }
 
       function move(direction) {
         if (!state.riding) return;
         if (direction === "left" || direction === "right") {
-          const previousHeading = state.heading;
-          state.heading = Math.max(-2, Math.min(2, state.heading + (direction === "left" ? -1 : 1)));
+          state.heading = (state.heading + (direction === "left" ? 3 : 1)) % 4;
           view.classList.add(direction === "left" ? "turning-left" : "turning-right");
           window.setTimeout(() => view.classList.remove("turning-left", "turning-right"), 350);
-          if (Math.abs(previousHeading) === 1 && Math.abs(state.heading) === 2) {
-            const fullTurnClass = state.heading < 0 ? "full-turn-left" : "full-turn-right";
-            view.classList.add(fullTurnClass);
-            window.setTimeout(() => view.classList.remove(fullTurnClass), 650);
-          }
+          view.classList.add(state.heading === 0 || state.heading === 2 ? "full-turn-right" : "full-turn-left");
+          window.setTimeout(() => view.classList.remove("full-turn-left", "full-turn-right"), 650);
+          rideNote.textContent = "You turn in place and look along the fence line.";
         } else {
-          const heading = ((state.heading % 4) + 4) % 4;
-          const steps = [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
-          const nextX = state.x + steps[heading].x;
-          const nextY = state.y + steps[heading].y;
+          const step = directions[state.heading];
+          const nextX = state.x + step.x;
+          const nextY = state.y + step.y;
           if (nextX < 0 || nextX > 14 || nextY < 0 || nextY > 14) {
             rideNote.textContent = "The arena fence is ahead. Turn your horse to ride another way.";
             return;
@@ -222,7 +233,7 @@
           view.classList.add("moving-forward");
           window.setTimeout(() => view.classList.remove("moving"), 300);
           window.setTimeout(() => view.classList.remove("moving-forward"), 300);
-          updateFence();
+          render();
           rideNote.textContent = "You ride forward through the arena.";
         }
         render();
