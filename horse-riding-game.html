@@ -49,13 +49,13 @@
         position: relative;
         isolation: isolate;
         overflow: hidden;
-        width: min(100%, 48rem);
-        aspect-ratio: 16 / 10;
+        width: min(100%, 52rem);
+        aspect-ratio: 16 / 9;
         margin: 2rem auto 0;
-        border: 0.7rem solid #ebdfbd;
-        border-radius: 0.9rem;
+        border: 1px solid rgb(235 223 189 / 55%);
+        border-radius: 1.25rem;
         background: linear-gradient(#79b8d5 0 46%, #80a453 46% 52%, #cda56e 52%);
-        box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 30%);
+        box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 30%), inset 0 0 0 1px rgb(255 255 255 / 12%);
       }
 
       .scene { position: absolute; inset: -25%; background: linear-gradient(#79b8d5 0 46%, #80a453 46% 52%, #cda56e 52%); transform: translateX(var(--look-shift)) scale(1.08); transition: transform 850ms ease-in-out; }
@@ -130,7 +130,7 @@
       @media (max-width: 30rem) {
         .setup { grid-template-columns: 1fr; }
         .name-row { grid-column: auto; }
-        .view { border-width: 0.45rem; }
+        .view { border-radius: 0.9rem; }
       }
     </style>
   </head>
@@ -213,7 +213,7 @@
           const nextX = state.x + steps[heading].x;
           const nextY = state.y + steps[heading].y;
           if (nextX < 0 || nextX > 14 || nextY < 0 || nextY > 14) {
-            rideNote.textContent = "The fence is here. Turn to stay inside the arena.";
+            rideNote.textContent = "The arena fence is ahead. Turn your horse to ride another way.";
             return;
           }
           state.x = nextX;
@@ -223,7 +223,7 @@
           window.setTimeout(() => view.classList.remove("moving"), 300);
           window.setTimeout(() => view.classList.remove("moving-forward"), 300);
           updateFence();
-          rideNote.textContent = `You rode to arena square ${state.x + 1}, ${state.y + 1}.`;
+          rideNote.textContent = "You ride forward through the arena.";
         }
         render();
       }
@@ -244,7 +244,7 @@
         state.heading = 0;
         view.classList.add("riding");
         controls.classList.add("visible");
-        rideNote.textContent = `You are riding ${horseName.value.trim() || "your horse"} from arena square 8, 8. Use the buttons, arrow keys, or WASD to ride.`;
+        rideNote.textContent = `You are riding ${horseName.value.trim() || "your horse"}. Use the buttons, arrow keys, or WASD to look around and ride.`;
         render();
       });
 
