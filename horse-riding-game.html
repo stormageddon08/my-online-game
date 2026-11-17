@@ -72,6 +72,12 @@
         transform-origin: top;
         transition: background-position 250ms ease;
       }
+      .arena-fence { position: absolute; top: 42%; left: -8%; width: 116%; height: 4.2rem; opacity: 0; pointer-events: none; transition: opacity 250ms ease; }
+      .arena-fence.visible { opacity: 1; }
+      .fence-rail { position: absolute; left: 0; width: 100%; height: 0.7rem; background: #7d4930; border: 0.18rem solid #33231b; box-shadow: inset 0 0.12rem rgb(255 235 194 / 35%); }
+      .fence-rail.top { top: 0; }
+      .fence-rail.bottom { bottom: 0; }
+      .fence-posts { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, #33231b 0 0.45rem, transparent 0.45rem 4.6rem); }
       .horse-head { position: absolute; bottom: -0.6rem; left: 50%; width: 11rem; height: 8rem; transform: translateX(-50%) rotate(var(--horse-tilt)); transition: transform 110ms linear; }
       .horse-head::before { position: absolute; left: 1.4rem; top: 1.2rem; width: 8.2rem; height: 8rem; border-radius: 46% 46% 30% 30%; background: var(--horse-color); content: ""; box-shadow: inset 1.2rem 0 rgb(255 255 255 / 10%), inset -1rem 0 rgb(0 0 0 / 13%); }
       .ear { position: absolute; z-index: 1; top: -0.8rem; width: 2.4rem; height: 4.4rem; border-radius: 90% 10% 70% 20%; background: var(--horse-color); }
@@ -135,6 +141,9 @@
       <div class="view" id="view" role="img" aria-label="First-person view from horseback in a fenced riding arena">
         <div class="scene">
           <div class="sun"></div><div class="horizon"></div><div class="ground-lines"></div>
+          <div class="arena-fence" id="arena-fence" aria-hidden="true">
+            <div class="fence-posts"></div><div class="fence-rail top"></div><div class="fence-rail bottom"></div>
+          </div>
         </div>
         <div class="horse-head" id="horse-head"><span class="ear left"></span><span class="ear right"></span><span class="mane"></span></div>
       </div>
@@ -152,16 +161,26 @@
       const horseName = document.querySelector("#horse-name");
       const rideNote = document.querySelector("#ride-note");
       const controls = document.querySelector("#controls");
+      const arenaFence = document.querySelector("#arena-fence");
       const directions = [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
+
+      function distanceToFence(direction) {
+        if (direction.x === 1) return 14 - state.x;
+        if (direction.x === -1) return state.x;
+        if (direction.y === 1) return 14 - state.y;
+        return state.y;
+      }
 
       function render() {
         view.style.setProperty("--horse-color", state.color);
         view.style.setProperty("--ground-x", `${-state.x * 23}px`);
         view.style.setProperty("--ground-y", `${-state.y * 23}px`);
         const viewTurn = state.heading === 3 ? -1 : state.heading === 1 ? 1 : 0;
+        const frontDistance = distanceToFence(directions[state.heading]);
         view.style.setProperty("--horse-tilt", `${viewTurn * 5}deg`);
         view.style.setProperty("--look-shift", `${viewTurn * -10}%`);
         view.style.setProperty("--scene-angle", `${state.viewRotation}deg`);
+        arenaFence.classList.toggle("visible", frontDistance <= 2);
       }
 
       function move(direction) {
