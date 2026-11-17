@@ -72,15 +72,6 @@
         transform-origin: top;
         transition: background-position 250ms ease;
       }
-      .arena-box { position: absolute; inset: 21% 10% 12%; pointer-events: none; opacity: 0; transform: perspective(28rem) rotateX(48deg) scale(1.15); transform-origin: bottom; transition: opacity 250ms ease, transform 350ms ease; }
-      .arena-box.visible { opacity: 0.88; }
-      .arena-side { position: absolute; background: #6b3f28; box-shadow: 0 0 0 0.18rem #382319, 0 0.45rem 0 rgb(255 235 194 / 42%); }
-      .arena-side.front, .arena-side.back { left: 0; width: 100%; height: 0.65rem; }
-      .arena-side.front { bottom: 0; }
-      .arena-side.back { top: 0; }
-      .arena-side.left, .arena-side.right { top: 0; width: 0.65rem; height: 100%; }
-      .arena-side.left { left: 0; }
-      .arena-side.right { right: 0; }
       .horse-head { position: absolute; bottom: -0.6rem; left: 50%; width: 11rem; height: 8rem; transform: translateX(-50%) rotate(var(--horse-tilt)); transition: transform 110ms linear; }
       .horse-head::before { position: absolute; left: 1.4rem; top: 1.2rem; width: 8.2rem; height: 8rem; border-radius: 46% 46% 30% 30%; background: var(--horse-color); content: ""; box-shadow: inset 1.2rem 0 rgb(255 255 255 / 10%), inset -1rem 0 rgb(0 0 0 / 13%); }
       .ear { position: absolute; z-index: 1; top: -0.8rem; width: 2.4rem; height: 4.4rem; border-radius: 90% 10% 70% 20%; background: var(--horse-color); }
@@ -144,10 +135,6 @@
       <div class="view" id="view" role="img" aria-label="First-person view from horseback in a fenced riding arena">
         <div class="scene">
           <div class="sun"></div><div class="horizon"></div><div class="ground-lines"></div>
-          <div class="arena-box" id="arena-box" aria-hidden="true">
-            <div class="arena-side front"></div><div class="arena-side back"></div>
-            <div class="arena-side left"></div><div class="arena-side right"></div>
-          </div>
         </div>
         <div class="horse-head" id="horse-head"><span class="ear left"></span><span class="ear right"></span><span class="mane"></span></div>
       </div>
@@ -159,43 +146,29 @@
       <p class="ride-note" id="ride-note">Name your horse, then mount up.</p>
     </main>
     <script>
-      const state = { x: 7, y: 7, heading: 0, color: "#9d4f2c", riding: false };
+      const state = { x: 7, y: 7, heading: 0, viewRotation: 0, color: "#9d4f2c", riding: false };
       const view = document.querySelector("#view");
       const horseHead = document.querySelector("#horse-head");
       const horseName = document.querySelector("#horse-name");
       const rideNote = document.querySelector("#ride-note");
       const controls = document.querySelector("#controls");
-      const arenaBox = document.querySelector("#arena-box");
       const directions = [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
-
-      function distanceToFence(direction) {
-        if (direction.x === 1) return 14 - state.x;
-        if (direction.x === -1) return state.x;
-        if (direction.y === 1) return 14 - state.y;
-        return state.y;
-      }
 
       function render() {
         view.style.setProperty("--horse-color", state.color);
         view.style.setProperty("--ground-x", `${-state.x * 23}px`);
         view.style.setProperty("--ground-y", `${-state.y * 23}px`);
         const viewTurn = state.heading === 3 ? -1 : state.heading === 1 ? 1 : 0;
-        const frontDirection = directions[state.heading];
-        const leftDirection = directions[(state.heading + 3) % 4];
-        const rightDirection = directions[(state.heading + 1) % 4];
-        const frontDistance = distanceToFence(frontDirection);
-        const leftDistance = distanceToFence(leftDirection);
-        const rightDistance = distanceToFence(rightDirection);
         view.style.setProperty("--horse-tilt", `${viewTurn * 5}deg`);
         view.style.setProperty("--look-shift", `${viewTurn * -10}%`);
-        view.style.setProperty("--scene-angle", `${state.heading * -90}deg`);
-        arenaBox.classList.toggle("visible", Math.min(frontDistance, leftDistance, rightDistance) <= 2);
+        view.style.setProperty("--scene-angle", `${state.viewRotation}deg`);
       }
 
       function move(direction) {
         if (!state.riding) return;
         if (direction === "left" || direction === "right") {
           state.heading = (state.heading + (direction === "left" ? 3 : 1)) % 4;
+          state.viewRotation += direction === "left" ? -90 : 90;
           view.classList.add(direction === "left" ? "turning-left" : "turning-right");
           window.setTimeout(() => view.classList.remove("turning-left", "turning-right"), 350);
           rideNote.textContent = `You turn ${direction} and face a new side of the arena.`;
@@ -233,6 +206,7 @@
         state.x = 7;
         state.y = 7;
         state.heading = 0;
+        state.viewRotation = 0;
         view.classList.add("riding");
         controls.classList.add("visible");
         rideNote.textContent = `You are riding ${horseName.value.trim() || "your horse"}. Use the buttons, arrow keys, or WASD to look around and ride.`;
