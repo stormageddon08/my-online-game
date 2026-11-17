@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#23452f">
-    <title>Fenced Arena | My Online Games</title>
+    <title>First-Person Arena Ride | My Online Games</title>
     <style>
       :root {
         font-family: system-ui, sans-serif;
@@ -15,59 +15,247 @@
       * { box-sizing: border-box; }
 
       body {
-        display: grid;
         min-height: 100vh;
         margin: 0;
-        place-items: center;
-        background:
-          radial-gradient(circle at 50% 20%, #5f9270, transparent 45rem),
-          #19372a;
+        background: radial-gradient(circle at 50% 20%, #5f9270, transparent 45rem), #19372a;
       }
 
-      main { width: min(100% - 2rem, 44rem); text-align: center; }
+      main { width: min(100% - 2rem, 52rem); margin: 0 auto; padding: 1.5rem 0 2.5rem; text-align: center; }
       a { color: #dce8c3; font-weight: 700; text-decoration: none; }
-      a:focus-visible { outline: 3px solid #e8c66c; outline-offset: 4px; }
+      a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #e8c66c; outline-offset: 4px; }
       h1 { margin: 1.2rem 0 0.4rem; font-family: Georgia, serif; font-size: clamp(2.4rem, 8vw, 4.5rem); font-weight: 400; }
       p { margin: 0; color: #d5e0ca; }
+      button, input { font: inherit; }
+      button { cursor: pointer; }
 
-      .arena {
+      .setup { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin: 1.5rem auto 0; text-align: left; }
+      .horse-choice { padding: 0.7rem; border: 2px solid #6a9370; border-radius: 0.65rem; background: #254b37; color: #fff8e6; text-align: center; }
+      .horse-choice[aria-pressed="true"] { border-color: #e8c66c; background: #385e42; }
+      .horse-choice span { display: block; font-size: 1.4rem; }
+      .horse-choice small { display: block; color: #d5e0ca; }
+      .name-row { display: flex; gap: 0.6rem; grid-column: 1 / -1; }
+      input { min-width: 0; flex: 1; padding: 0.7rem; border: 1px solid #92ae8a; border-radius: 0.45rem; color: #19372a; }
+      .start { padding: 0.7rem 0.9rem; border: 0; border-radius: 0.45rem; background: #e8c66c; color: #38270b; font-weight: 800; }
+      .start:hover { background: #f5d477; }
+
+      .view {
+        --horse-color: #9d4f2c;
+        --ground-x: 0%;
+        --ground-y: 0%;
+        --horse-tilt: 0deg;
+        --fence-shift: 0px;
+        --look-shift: 0%;
+        --fence-scale: 0.8;
         position: relative;
-        width: min(100%, 34rem);
-        aspect-ratio: 1;
-        margin: 2rem auto;
-        border: clamp(0.7rem, 2.5vw, 1.2rem) solid #ebdfbd;
-        outline: 0.35rem solid #7d5034;
-        outline-offset: -0.5rem;
-        background:
-          repeating-linear-gradient(0deg, rgb(145 100 62 / 20%) 0 1px, transparent 1px 3rem),
-          repeating-linear-gradient(90deg, rgb(145 100 62 / 15%) 0 1px, transparent 1px 3rem),
-          #cda56e;
+        isolation: isolate;
+        overflow: hidden;
+        width: min(100%, 48rem);
+        aspect-ratio: 16 / 10;
+        margin: 2rem auto 0;
+        border: 0.7rem solid #ebdfbd;
+        border-radius: 0.9rem;
+        background: linear-gradient(#79b8d5 0 46%, #80a453 46% 52%, #cda56e 52%);
         box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 30%);
       }
 
-      .post {
+      .scene { position: absolute; inset: -25%; background: linear-gradient(#79b8d5 0 46%, #80a453 46% 52%, #cda56e 52%); transform: translateX(var(--look-shift)) scale(1.08); transition: transform 850ms ease-in-out; }
+      .sun { position: absolute; z-index: -1; top: 10%; right: 16%; width: 3.8rem; aspect-ratio: 1; border-radius: 50%; background: #fff2bd; box-shadow: 0 0 2.5rem #fff2bd; }
+      .horizon { position: absolute; z-index: -1; top: 41%; left: -10%; width: 120%; height: 13%; background: #527d42; clip-path: polygon(0 75%, 14% 30%, 25% 60%, 42% 15%, 57% 65%, 72% 20%, 86% 55%, 100% 25%, 100% 100%, 0 100%); }
+      .ground-lines {
         position: absolute;
-        width: 1.2rem;
-        height: 1.2rem;
-        border-radius: 50%;
-        background: #6a402b;
-        box-shadow: 0 1px 0 #f3e7c7;
+        inset: 50% -20% -35%;
+        z-index: -1;
+        background-color: #cda56e;
+        background-image: linear-gradient(rgb(121 78 39 / 22%) 2px, transparent 2px), linear-gradient(90deg, rgb(121 78 39 / 22%) 2px, transparent 2px);
+        background-position: var(--ground-x) var(--ground-y);
+        background-size: 5rem 5rem;
+        transform: perspective(17rem) rotateX(54deg) scale(1.45);
+        transform-origin: top;
+        transition: background-position 250ms ease;
+      }
+      .fence-layer { position: absolute; inset: 0; transition: opacity 400ms ease; }
+      .fence-layer.previous { opacity: 0; }
+      .fence-layer.previous.visible { opacity: 1; }
+      .far-fence { position: absolute; top: 44%; left: -8%; width: 116%; height: 4.2rem; border-top: 0.7rem solid #613a29; border-bottom: 0.7rem solid #7d4930; background: repeating-linear-gradient(90deg, #2d211b 0 0.45rem, #8b4e30 0.45rem 1.2rem, #f3e7c7 1.2rem 1.45rem, #5c3525 1.45rem 2.1rem, transparent 2.1rem 4.6rem); background-position: var(--fence-shift) 0; box-shadow: 0 0 0 0.22rem #33231b; transform: scale(var(--fence-scale)); transform-origin: center; transition: transform 300ms ease; }
+      .horse-head { position: absolute; bottom: -0.6rem; left: 50%; width: 11rem; height: 8rem; transform: translateX(-50%) rotate(var(--horse-tilt)); transition: transform 110ms linear; }
+      .horse-head::before { position: absolute; left: 1.4rem; top: 1.2rem; width: 8.2rem; height: 8rem; border-radius: 46% 46% 30% 30%; background: var(--horse-color); content: ""; box-shadow: inset 1.2rem 0 rgb(255 255 255 / 10%), inset -1rem 0 rgb(0 0 0 / 13%); }
+      .ear { position: absolute; z-index: 1; top: -0.8rem; width: 2.4rem; height: 4.4rem; border-radius: 90% 10% 70% 20%; background: var(--horse-color); }
+      .ear.left { left: 1.2rem; transform: rotate(-24deg); }
+      .ear.right { right: 1.2rem; transform: scaleX(-1) rotate(-24deg); }
+      .mane { position: absolute; z-index: 2; left: 50%; top: 1.6rem; width: 1.3rem; height: 6rem; transform: translateX(-50%); background: rgb(41 24 16 / 72%); clip-path: polygon(20% 0, 100% 0, 82% 100%, 0 93%); }
+      .view:not(.riding) .horse-head { display: none; }
+      .view.moving .horse-head { animation: trot 300ms ease-in-out; }
+      @keyframes trot {
+        0%, 100% { transform: translateX(-50%) rotate(var(--horse-tilt)); }
+        50% { transform: translateX(-50%) translateY(0.55rem) rotate(var(--horse-tilt)); }
+      }
+      .view.moving-forward .ground-lines { animation: move-forward 300ms ease-out; }
+      .view.moving-back .ground-lines { animation: move-back 300ms ease-out; }
+      .view.turning-left .horse-head { animation: look-left 350ms ease-in-out; }
+      .view.turning-right .horse-head { animation: look-right 350ms ease-in-out; }
+      @keyframes move-forward {
+        0% { transform: perspective(17rem) rotateX(54deg) scale(1.45); }
+        100% { transform: perspective(17rem) rotateX(54deg) scale(1.75); }
+      }
+      @keyframes move-back {
+        0% { transform: perspective(17rem) rotateX(54deg) scale(1.75); }
+        100% { transform: perspective(17rem) rotateX(54deg) scale(1.45); }
+      }
+      @keyframes look-left {
+        0%, 100% { transform: translateX(-50%) rotate(var(--horse-tilt)); }
+        50% { transform: translateX(-56%) rotate(calc(var(--horse-tilt) - 13deg)); }
+      }
+      @keyframes look-right {
+        0%, 100% { transform: translateX(-50%) rotate(var(--horse-tilt)); }
+        50% { transform: translateX(-44%) rotate(calc(var(--horse-tilt) + 13deg)); }
+      }
+      .view.full-turn-left .scene { animation: full-turn-left 650ms ease-in-out; }
+      .view.full-turn-right .scene { animation: full-turn-right 650ms ease-in-out; }
+      @keyframes full-turn-left {
+        0% { transform: translateX(10%) scale(1.08); }
+        100% { transform: translateX(20%) scale(1.08); }
+      }
+      @keyframes full-turn-right {
+        0% { transform: translateX(-10%) scale(1.08); }
+        100% { transform: translateX(-20%) scale(1.08); }
       }
 
-      .post:nth-child(1) { top: -0.6rem; left: -0.6rem; }
-      .post:nth-child(2) { top: -0.6rem; right: -0.6rem; }
-      .post:nth-child(3) { right: -0.6rem; bottom: -0.6rem; }
-      .post:nth-child(4) { bottom: -0.6rem; left: -0.6rem; }
+      .controls { display: none; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; width: min(100%, 22rem); margin: 1.25rem auto 0; }
+      .controls.visible { display: grid; }
+      .move { padding: 0.65rem; border: 1px solid #8dac8a; border-radius: 0.45rem; background: #254b37; color: #fff8e6; font-weight: 800; }
+      .move:first-child { grid-column: 2; }
+      .move:hover { background: #385e42; }
+      .ride-note { min-height: 1.5rem; margin-top: 1rem; font-size: 0.86rem; }
+
+      @media (max-width: 30rem) {
+        .setup { grid-template-columns: 1fr; }
+        .name-row { grid-column: auto; }
+        .view { border-width: 0.45rem; }
+      }
     </style>
   </head>
   <body>
     <main>
       <a href="index.html">← All games</a>
-      <h1>Fenced Arena</h1>
-      <p>A square fence.</p>
-      <div class="arena" role="img" aria-label="A square fenced arena">
-        <span class="post"></span><span class="post"></span><span class="post"></span><span class="post"></span>
+      <h1>First-Person Arena Ride</h1>
+      <p>Choose your horse, then see the arena from the saddle.</p>
+      <div class="setup" aria-label="Horse setup">
+        <button class="horse-choice" type="button" data-color="#9d4f2c" aria-pressed="true"><span>♞</span>Chestnut<small>Steady</small></button>
+        <button class="horse-choice" type="button" data-color="#aeb7b1" aria-pressed="false"><span>♞</span>Dapple Grey<small>Brave</small></button>
+        <button class="horse-choice" type="button" data-color="#473126" aria-pressed="false"><span>♞</span>Bay<small>Quick</small></button>
+        <div class="name-row">
+          <input id="horse-name" maxlength="20" value="Clover" aria-label="Horse name">
+          <button class="start" id="start" type="button">Mount horse</button>
+        </div>
       </div>
+      <div class="view" id="view" role="img" aria-label="First-person view from horseback in a fenced riding arena">
+        <div class="scene">
+          <div class="sun"></div><div class="horizon"></div><div class="ground-lines"></div>
+          <div class="fence-layer previous" id="previous-fence" aria-hidden="true"><div class="far-fence"></div></div>
+          <div class="fence-layer" id="current-fence"><div class="far-fence"></div></div>
+        </div>
+        <div class="horse-head" id="horse-head"><span class="ear left"></span><span class="ear right"></span><span class="mane"></span></div>
+      </div>
+      <div class="controls" id="controls" aria-label="Riding controls">
+        <button class="move" type="button" data-direction="forward">↑ Forward</button>
+        <button class="move" type="button" data-direction="left">← Turn</button>
+        <button class="move" type="button" data-direction="right">Turn →</button>
+      </div>
+      <p class="ride-note" id="ride-note">Name your horse, then mount up.</p>
     </main>
+    <script>
+      const state = { x: 7, y: 7, heading: 0, color: "#9d4f2c", riding: false };
+      const view = document.querySelector("#view");
+      const horseHead = document.querySelector("#horse-head");
+      const horseName = document.querySelector("#horse-name");
+      const rideNote = document.querySelector("#ride-note");
+      const controls = document.querySelector("#controls");
+      const currentFence = document.querySelector("#current-fence");
+      const previousFence = document.querySelector("#previous-fence");
+      let fenceTimer;
+
+      function render() {
+        view.style.setProperty("--horse-color", state.color);
+        view.style.setProperty("--ground-x", `${-state.x * 23}px`);
+        view.style.setProperty("--ground-y", `${-state.y * 23}px`);
+        const viewTurn = Math.max(-2, Math.min(2, state.heading));
+        const edgeDistance = Math.min(state.x, state.y, 14 - state.x, 14 - state.y);
+        const fenceScale = 0.8 + ((7 - edgeDistance) / 7) * 0.55;
+        view.style.setProperty("--horse-tilt", `${viewTurn * 5}deg`);
+        view.style.setProperty("--look-shift", `${viewTurn * -10}%`);
+        view.style.setProperty("--fence-scale", fenceScale);
+        currentFence.style.setProperty("--fence-shift", `${(state.x * 31 + state.y * 19) % 74}px`);
+      }
+
+      function updateFence() {
+        window.clearTimeout(fenceTimer);
+        previousFence.style.setProperty("--fence-shift", currentFence.style.getPropertyValue("--fence-shift"));
+        previousFence.classList.add("visible");
+        render();
+        fenceTimer = window.setTimeout(() => previousFence.classList.remove("visible"), 450);
+      }
+
+      function move(direction) {
+        if (!state.riding) return;
+        if (direction === "left" || direction === "right") {
+          const previousHeading = state.heading;
+          state.heading = Math.max(-2, Math.min(2, state.heading + (direction === "left" ? -1 : 1)));
+          view.classList.add(direction === "left" ? "turning-left" : "turning-right");
+          window.setTimeout(() => view.classList.remove("turning-left", "turning-right"), 350);
+          if (Math.abs(previousHeading) === 1 && Math.abs(state.heading) === 2) {
+            const fullTurnClass = state.heading < 0 ? "full-turn-left" : "full-turn-right";
+            view.classList.add(fullTurnClass);
+            window.setTimeout(() => view.classList.remove(fullTurnClass), 650);
+          }
+        } else {
+          const heading = ((state.heading % 4) + 4) % 4;
+          const steps = [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
+          const nextX = state.x + steps[heading].x;
+          const nextY = state.y + steps[heading].y;
+          if (nextX < 0 || nextX > 14 || nextY < 0 || nextY > 14) {
+            rideNote.textContent = "The fence is here. Turn to stay inside the arena.";
+            return;
+          }
+          state.x = nextX;
+          state.y = nextY;
+          view.classList.add("moving");
+          view.classList.add("moving-forward");
+          window.setTimeout(() => view.classList.remove("moving"), 300);
+          window.setTimeout(() => view.classList.remove("moving-forward"), 300);
+          updateFence();
+          rideNote.textContent = `You rode to arena square ${state.x + 1}, ${state.y + 1}.`;
+        }
+        render();
+      }
+
+      document.querySelectorAll(".horse-choice").forEach((choice) => {
+        choice.addEventListener("click", () => {
+          document.querySelectorAll(".horse-choice").forEach((item) => item.setAttribute("aria-pressed", "false"));
+          choice.setAttribute("aria-pressed", "true");
+          state.color = choice.dataset.color;
+          render();
+        });
+      });
+
+      document.querySelector("#start").addEventListener("click", () => {
+        state.riding = true;
+        state.x = 7;
+        state.y = 7;
+        state.heading = 0;
+        view.classList.add("riding");
+        controls.classList.add("visible");
+        rideNote.textContent = `You are riding ${horseName.value.trim() || "your horse"} from arena square 8, 8. Use the buttons, arrow keys, or WASD to ride.`;
+        render();
+      });
+
+      document.querySelectorAll(".move").forEach((button) => button.addEventListener("click", () => move(button.dataset.direction)));
+      document.addEventListener("keydown", (event) => {
+        const directions = { ArrowUp: "forward", ArrowLeft: "left", ArrowRight: "right", w: "forward", a: "left", d: "right" };
+        const direction = directions[event.key] || directions[event.key.toLowerCase()];
+        if (!direction) return;
+        event.preventDefault();
+        move(direction);
+      });
+    </script>
   </body>
 </html>
